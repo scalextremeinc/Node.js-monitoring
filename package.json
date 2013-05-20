@@ -1,14 +1,14 @@
 {
-  "name": "node-monitor",
+  "name": "scalex-monitor",
   "version": "0.3.7",
-  "description": "Node.js server monitor module",
+  "description": "Node.js server monitor module for scalextreme.com",
   "main": "./node_monitor_plugin/src/monitor",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/shunanya/Node.js-monitoring.git"
+    "url": "git@github.com:scalextremeinc/Node.js-monitoring.git"
   },
   "dependencies": {
     "log4js": "> 0.4.0",
@@ -19,11 +19,11 @@
     "Monitoring"
   ],
   "author": {
-	"name": "Simon Hunanyan",
-	"email": "simon.hunanyan@monitis.com"
+	"name": "scalextreme",
+	"email": "info@scalextreme.com"
    },
    "bugs": {
-       "url": "http://github.com/shunanya/Node.js-monitoring/issues"
+       "url": "https://github.com/scalextremeinc/Node.js-monitoring"
    },
    "engines": [ "node >=0.8" ],
    "directories": {
