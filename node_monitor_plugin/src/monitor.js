@@ -517,9 +517,10 @@ function monitorResultsToString(mon_server) {
 	return ret;
 }
 
-function createMetricLine(mon_server, metric) {
-    var port = mon_server.address()['port'] || "";
-    return "nodejs." + metric + "." + port + ":" + value + "\n";
+function metricLine(mon_server, metric, value) {
+    var port = mon_server.listen || "";
+    //logger.info("metricLine, mon_server: " + mon_server.listen);
+    return "nodejs." + metric + ".[" + port + "]:" + value + "\n";
 }
 
 function monitorResultsToScalexString(mon_server) {
@@ -527,18 +528,18 @@ function monitorResultsToScalexString(mon_server) {
 	var time_idle = time_window - mon_server['active'];
 	var load = mon_server['requests'] / time_window;
     
-	ret = createMetricLine(mon_server, "status", mon_server['status'])
-        + createMetricLine(mon_server, "uptime", escape(utils.formatTimestamp(process.uptime()))
-        + createMetricLine(mon_server, "avr_net", (mon_server['avr_net_time'] / 1000).toFixed(3))
-        + createMetricLine(mon_server, "max_net", (mon_server['max_net_time'] / 1000).toFixed(3))
-        + createMetricLine(mon_server, "avr_resp", (mon_server['avr_resp_time'] / 1000).toFixed(3))
-        + createMetricLine(mon_server, "max_resp", (mon_server['max_resp_time'] / 1000).toFixed(3))
-        + createMetricLine(mon_server, "avr_total", (mon_server['avr_time'] / 1000).toFixed(3))
-        + createMetricLine(mon_server, "max_total", (mon_server['max_time'] / 1000).toFixed(3))
-        + createMetricLine(mon_server, "in_rate", ((mon_server['bytes_read'] / time_window / 1000).toFixed(3)))
-        + createMetricLine(mon_server, "out_rate", ((mon_server['bytes_written'] / time_window / 1000).toFixed(3)))
-        + createMetricLine(mon_server, "active", (mon_server['active'] / time_window * 100).toFixed(2))
-        + createMetricLine(mon_server, "load", (load).toFixed(3));
+	ret = metricLine(mon_server, "status", mon_server['status'])
+        + metricLine(mon_server, "uptime", escape(utils.formatTimestamp(process.uptime())))
+        + metricLine(mon_server, "avr_net", (mon_server['avr_net_time'] / 1000).toFixed(3))
+        + metricLine(mon_server, "max_net", (mon_server['max_net_time'] / 1000).toFixed(3))
+        + metricLine(mon_server, "avr_resp", (mon_server['avr_resp_time'] / 1000).toFixed(3))
+        + metricLine(mon_server, "max_resp", (mon_server['max_resp_time'] / 1000).toFixed(3))
+        + metricLine(mon_server, "avr_total", (mon_server['avr_time'] / 1000).toFixed(3))
+        + metricLine(mon_server, "max_total", (mon_server['max_time'] / 1000).toFixed(3))
+        + metricLine(mon_server, "in_rate", ((mon_server['bytes_read'] / time_window / 1000).toFixed(3)))
+        + metricLine(mon_server, "out_rate", ((mon_server['bytes_written'] / time_window / 1000).toFixed(3)))
+        + metricLine(mon_server, "active", (mon_server['active'] / time_window * 100).toFixed(2))
+        + metricLine(mon_server, "load", (load).toFixed(3));
 			
 	
 	if (mon_server['requests'] > 0) {
@@ -558,19 +559,19 @@ function monitorResultsToScalexString(mon_server) {
 				mon_server['info'][new_key] = sorted;
 			}
 		}*/
-        ret += createMetricLine(mon_server, "requests", mon_server['requests']);
-        ret += createMetricLine(mon_server, "codes_1xx", mon_server['1xx']);
-        ret += createMetricLine(mon_server, "codes_2xx", mon_server['2xx']);
-        ret += createMetricLine(mon_server, "codes_3xx", mon_server['3xx']);
-        ret += createMetricLine(mon_server, "codes_4xx", mon_server['4xx']);
-        ret += createMetricLine(mon_server, "codes_408", mon_server['timeout']);
-        ret += createMetricLine(mon_server, "codes_5xx", mon_server['5xx']);
-        ret += createMetricLine(mon_server, "post", ((mon_server['post_count'] / mon_server['requests'] * 100)).toFixed(1));
-        ret += createMetricLine(mon_server, "2xx", (100 * mon_server['2xx'] / mon_server['requests']).toFixed(1));
-        ret += createMetricLine(mon_server, "exceptions", mon_server['exceptions']);
+        ret += metricLine(mon_server, "requests", mon_server['requests']);
+        ret += metricLine(mon_server, "codes_1xx", mon_server['1xx']);
+        ret += metricLine(mon_server, "codes_2xx", mon_server['2xx']);
+        ret += metricLine(mon_server, "codes_3xx", mon_server['3xx']);
+        ret += metricLine(mon_server, "codes_4xx", mon_server['4xx']);
+        ret += metricLine(mon_server, "codes_408", mon_server['timeout']);
+        ret += metricLine(mon_server, "codes_5xx", mon_server['5xx']);
+        ret += metricLine(mon_server, "post", ((mon_server['post_count'] / mon_server['requests'] * 100)).toFixed(1));
+        ret += metricLine(mon_server, "2xx", (100 * mon_server['2xx'] / mon_server['requests']).toFixed(1));
+        ret += metricLine(mon_server, "exceptions", mon_server['exceptions']);
 	}
-    ret += createMetricLine(mon_server, "mon_time", (time_window).toFixed(3));
-    ret += createMetricLine(mon_server, "listen", mon_server['listen']);
+    ret += metricLine(mon_server, "mon_time", (time_window).toFixed(3));
+    ret += metricLine(mon_server, "listen", mon_server['listen']);
 
 	return ret;
 }
