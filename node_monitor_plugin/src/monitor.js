@@ -362,7 +362,7 @@ function addResultsToMonitor(server, requests, post_count, get_count, params, st
 function getMonitorAllResults(clean) {
 	var res = "";
 	for ( var i = 0; i < monitors.length; i++) {
-		res += monitorResultsToString(monitors[i]);
+		res += monitorResultsToScalexString(monitors[i]);
 		res += "\n";
 	}
 	if (clean) {
@@ -436,7 +436,7 @@ function getMonitorTotalResult(clean) {
 	} else {
 		sum['status'] = STATUS_OK;
 	}
-	return monitorResultsToString(sum);
+	return monitorResultsToScalexString(sum);
 }
 
 function getMonitorResults(server) {
@@ -446,7 +446,7 @@ function getMonitorResults(server) {
 			var mon_server = monitors[i];
 			if (mon_server['server'] == server) {
 				logger.debug("getting monitor parameters...");
-				ret = monitorResultsToString(mon_server);
+				ret = monitorResultsToScalexString(mon_server);
 				break;
 			}
 		}
@@ -516,6 +516,65 @@ function monitorResultsToString(mon_server) {
 	ret += " | " + JSON.stringify(mon_server['info']).toString(); // additional (variable part) results
 	return ret;
 }
+
+function createMetricLine(mon_server, metric) {
+    var port = mon_server.address()['port'] || "";
+    return "nodejs." + metric + "." + port + ":" + value + "\n";
+}
+
+function monitorResultsToScalexString(mon_server) {
+	var time_window = ((new Date().getTime()) - mon_server['timeS']) / 1000; // monitoring time window in sec
+	var time_idle = time_window - mon_server['active'];
+	var load = mon_server['requests'] / time_window;
+    
+	ret = createMetricLine(mon_server, "status", mon_server['status'])
+        + createMetricLine(mon_server, "uptime", escape(utils.formatTimestamp(process.uptime()))
+        + createMetricLine(mon_server, "avr_net", (mon_server['avr_net_time'] / 1000).toFixed(3))
+        + createMetricLine(mon_server, "max_net", (mon_server['max_net_time'] / 1000).toFixed(3))
+        + createMetricLine(mon_server, "avr_resp", (mon_server['avr_resp_time'] / 1000).toFixed(3))
+        + createMetricLine(mon_server, "max_resp", (mon_server['max_resp_time'] / 1000).toFixed(3))
+        + createMetricLine(mon_server, "avr_total", (mon_server['avr_time'] / 1000).toFixed(3))
+        + createMetricLine(mon_server, "max_total", (mon_server['max_time'] / 1000).toFixed(3))
+        + createMetricLine(mon_server, "in_rate", ((mon_server['bytes_read'] / time_window / 1000).toFixed(3)))
+        + createMetricLine(mon_server, "out_rate", ((mon_server['bytes_written'] / time_window / 1000).toFixed(3)))
+        + createMetricLine(mon_server, "active", (mon_server['active'] / time_window * 100).toFixed(2))
+        + createMetricLine(mon_server, "load", (load).toFixed(3));
+			
+	
+	if (mon_server['requests'] > 0) {
+        /*
+		if (mon_server['info']['paths'] && TOP_VIEW > 0) {
+			var sorted = utils.sortObject(mon_server['info']['paths'], {
+				'byprop' : TOP_SORTBY, 'descending' : true, 'top' : TOP_VIEW, 'format' : 3,
+				'array_option' : [ 
+					  {'property' : 'load', 'action' : 'divide', 'param1' : 'count', 'param2' : time_window}
+					, {'property' : 'rate', 'action' : 'divide', 'param1' : 'rate', 'param2' : 'count'}
+		            , {'property':'rate', 'action':'divide', 'param1':'rate', 'param2':1000}
+		            , {'property':'max_time', 'action':'divide', 'param1':'max_time', 'param2':1000}]
+			});
+			delete mon_server['info']['paths'];
+			if (sorted.length > 0) {
+				var new_key = "sorted by \'" + TOP_SORTBY + "\' (top " + TOP_VIEW + ")";
+				mon_server['info'][new_key] = sorted;
+			}
+		}*/
+        ret += createMetricLine(mon_server, "requests", mon_server['requests']);
+        ret += createMetricLine(mon_server, "codes_1xx", mon_server['1xx']);
+        ret += createMetricLine(mon_server, "codes_2xx", mon_server['2xx']);
+        ret += createMetricLine(mon_server, "codes_3xx", mon_server['3xx']);
+        ret += createMetricLine(mon_server, "codes_4xx", mon_server['4xx']);
+        ret += createMetricLine(mon_server, "codes_408", mon_server['timeout']);
+        ret += createMetricLine(mon_server, "codes_5xx", mon_server['5xx']);
+        ret += createMetricLine(mon_server, "post", ((mon_server['post_count'] / mon_server['requests'] * 100)).toFixed(1));
+        ret += createMetricLine(mon_server, "2xx", (100 * mon_server['2xx'] / mon_server['requests']).toFixed(1));
+        ret += createMetricLine(mon_server, "exceptions", mon_server['exceptions']);
+	}
+    ret += createMetricLine(mon_server, "mon_time", (time_window).toFixed(3));
+    ret += createMetricLine(mon_server, "listen", mon_server['listen']);
+
+	return ret;
+}
+
 
 function cleanAllMonitorResults() {
 	for ( var i = 0; i < monitors.length; i++) {
