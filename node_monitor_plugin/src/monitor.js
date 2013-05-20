@@ -892,6 +892,6 @@ function init(port) {
         res.write(result);
         res.end();
     }).listen(port, HOST_LISTEN);
-    logger.info("Scalextreme node.js monitoring initialized, listening on port: " + port);
+    logger.info("Scalextreme node.js monitoring initialized, socket: " + HOST_LISTEN + ":" + port);
 }
 exports.init = init;
