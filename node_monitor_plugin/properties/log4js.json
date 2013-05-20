@@ -2,32 +2,10 @@
   "appenders": [
     { 
       "category": "node_server", 
-      "type": "file", 
-      "filename": "./log/node.log", 
-      "maxLogSize": 1048576,
-      "backups": 10,
-      "pollInterval": 15,
-      "layout": { 
-        "type": "basic" 
-      }
-    },
-    { 
-      "category": "node_server", 
       "type": "console",
       "layout": { 
         "type": "basic" 
       } 
-    },
-    { 
-      "category": "node_monitor", 
-      "type": "file", 
-      "filename": "./log/monitor.log", 
-      "maxLogSize": 1048576,
-      "backups": 10,
-      "pollInterval": 15,
-      "layout": { 
-        "type": "basic" 
-      }
     },
     { 
       "category": "node_monitor", 
