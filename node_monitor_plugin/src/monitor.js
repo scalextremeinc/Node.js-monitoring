@@ -877,7 +877,7 @@ http.createServer(function(req, res) {
 		result = "Access denied."
 		code = 403;
 	}
-	logger.info("SUM: " + result);
+	logger.debug("SUM: " + result);
 
 	res.writeHead(200, {
 		'Content-Type' : 'text/plain',
