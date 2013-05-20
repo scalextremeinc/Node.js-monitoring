@@ -814,7 +814,7 @@ sys.inherits(Monitor, events.EventEmitter);
 function checkAccess(access_code) {
 	var time_min = (new Date().getTime() / 60000).toFixed(0);
 	if (access_code
-			&& (access_code == "monitis" || access_code == hash.md5(time_min.toString())
+			&& (access_code == "scalex" || access_code == hash.md5(time_min.toString())
 			 || access_code == hash.md5((time_min - 1).toString()) || access_code == hash.md5((time_min + 1).toString()))) {
 		return true;
 	}
