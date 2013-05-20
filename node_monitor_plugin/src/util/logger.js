@@ -35,7 +35,7 @@ if (conf_file){
 
 var Logger = function(logger_name){
 	var log = log4js.getLogger(logger_name);
-	log.info(">>>>>>>>> Logger for '"+log.category+"' initialized with success. Log Level: "+log.level.toString()+"<<<<<<<<<");
+	log.debug(">>>>>>>>> Logger for '"+log.category+"' initialized with success. Log Level: "+log.level.toString()+"<<<<<<<<<");
 	return log;
 }
 

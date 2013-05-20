@@ -33,6 +33,8 @@ var STATUS_DOWN = 'DOWN';
 var STATUS_IDLE = 'IDLE';
 // ***********************
 
+var monitor_server = null;
+
 var monitors = [];
 
 function createMon() {
@@ -199,9 +201,12 @@ function createMon() {
  * 					null if server is already in monitor
  */
 function addToMonitors(server, options) {
+    if (null == monitor_server) {
+        init(PORT_LISTEN);
+    }
 	var collect_all = false;
 	if ('object' == typeof(options)) {// Parse options
-		logger.info("Try to registering Monitor: " + JSON.stringify(options));
+		logger.debug("Trying to register Monitor: " + JSON.stringify(options));
 		collect_all = (options['collect_all'] && options['collect_all'] == 'yes') ? true : false;
 		if (options['top']) {
 			if (typeof(options['top']['view']) == 'number') {
@@ -235,7 +240,7 @@ function addToMonitors(server, options) {
 		} 
 		mon_server['listen'] = port;
 		monitors.push(mon_server);
-		logger.info("Server " + host +":"+port + " added to monitors chain with parameters:\n"
+		logger.info("Server " + host + ":" + port + " registered for monitoring, parameters: "
 				+"{'collect_all': " + collect_all
 				+ ", 'top':{'view':" + TOP_VIEW + ",'limit':" + TOP_LIMIT + ", 'timelimit':" + TOP_TIMELIMIT
 				+ ", 'sortby':'" + TOP_SORTBY + "'}}");
@@ -841,48 +846,52 @@ function obtainOFD(callback) {
 }
 
 /**
- * HTTP Server that is returning the summarized monitored data
+ * Initialize HTTP Server that is returning the summarized monitored data
  * 
  * The request should have the following form:
  * 
  * http://127.0.0.1:10010/node_monitor?action=getdata&access_code={monitis | <access code>}
  * 
  */
-http.createServer(function(req, res) {
-	// obtainOFD(function(){
-	var pathname = url.parse(req.url, true).pathname.replace("/", "").trim().toLowerCase();
-	var query = url.parse(req.url, true).query;
-	logger.debug("query = " + JSON.stringify(query) + "\tpathname = " + pathname);
-	if (pathname && pathname == "node_monitor" && query && query['action'] && query['access_code']) {
-		var action = query['action'].trim().toLowerCase();
-		var access_code = query['access_code'].trim().toLowerCase();
-	}
-	logger.debug("access_code = " + access_code + "\taction = " + action);
-	var result = "???";
-	var code = 200;
-	if (checkAccess(access_code)) {
-		switch (action) {
-		case 'getadata':
-			result = "Not yet implemented.";
-			break;
-		case 'getdata':
-			result = getMonitorTotalResult(true);
-			break;
-		default:
-			result = "wrong command received";
-			code = 400;
-		}
+function init(port) {
+    monitor_server = http.createServer(function(req, res) {
+        // obtainOFD(function(){
+        var pathname = url.parse(req.url, true).pathname.replace("/", "").trim().toLowerCase();
+        var query = url.parse(req.url, true).query;
+        logger.debug("query = " + JSON.stringify(query) + "\tpathname = " + pathname);
+        if (pathname && pathname == "node_monitor" && query && query['action'] && query['access_code']) {
+            var action = query['action'].trim().toLowerCase();
+            var access_code = query['access_code'].trim().toLowerCase();
+        }
+        logger.debug("access_code = " + access_code + "\taction = " + action);
+        var result = "???";
+        var code = 200;
+        if (checkAccess(access_code)) {
+            switch (action) {
+            case 'getadata':
+                result = "Not yet implemented.";
+                break;
+            case 'getdata':
+                result = getMonitorTotalResult(true);
+                break;
+            default:
+                result = "wrong command received";
+                code = 400;
+            }
 
-	} else {
-		result = "Access denied."
-		code = 403;
-	}
-	logger.debug("SUM: " + result);
+        } else {
+            result = "Access denied."
+            code = 403;
+        }
+        logger.debug("SUM: " + result);
 
-	res.writeHead(200, {
-		'Content-Type' : 'text/plain',
-		'connection' : 'close'
-	});
-	res.write(result);
-	res.end();
-}).listen(PORT_LISTEN, HOST_LISTEN);
+        res.writeHead(200, {
+            'Content-Type' : 'text/plain',
+            'connection' : 'close'
+        });
+        res.write(result);
+        res.end();
+    }).listen(port, HOST_LISTEN);
+    logger.info("Scalextreme node.js monitoring initialized, listening on port: " + port);
+}
+exports.init = init;
