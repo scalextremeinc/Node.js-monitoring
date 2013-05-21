@@ -433,16 +433,7 @@ function getMonitorTotalResult(clean) {
 	if (clean) {
 		cleanAllMonitorResults();
 	}
-	if (sum['listen'].length == 0) {
-		sum['status'] = STATUS_DOWN;
-	} else if (sum['requests'] == 0) {
-		sum['status'] = STATUS_IDLE;
-	} else if ((sum['max_net_time'] != 0 && sum['avr_net_time'] / sum['max_net_time'] > 0.9)
-			|| (sum['max_resp_time'] != 0 && sum['avr_resp_time'] / sum['max_resp_time'] > 0.9)) {
-		sum['status'] = STATUS_NOK;
-	} else {
-		sum['status'] = STATUS_OK;
-	}
+    updateStatus(sum);
 	return monitorResultsToScalexString(sum);
 }
 
@@ -459,6 +450,19 @@ function getMonitorResults(server) {
 		}
 	}
 	return ret;
+}
+
+function updateStatus(mon_server) {
+    if (mon_server['listen'].length == 0) {
+		mon_server['status'] = STATUS_DOWN;
+	} else if (mon_server['requests'] == 0) {
+		mon_server['status'] = STATUS_IDLE;
+	} else if ((mon_server['max_net_time'] != 0 && mon_server['avr_net_time'] / mon_server['max_net_time'] > 0.9)
+			|| (mon_server['max_resp_time'] != 0 && mon_server['avr_resp_time'] / mon_server['max_resp_time'] > 0.9)) {
+		mon_server['status'] = STATUS_NOK;
+	} else {
+		mon_server['status'] = STATUS_OK;
+	} 
 }
 
 /**
@@ -534,7 +538,7 @@ function monitorResultsToScalexString(mon_server) {
 	var time_window = ((new Date().getTime()) - mon_server['timeS']) / 1000; // monitoring time window in sec
 	var time_idle = time_window - mon_server['active'];
 	var load = mon_server['requests'] / time_window;
-    
+    updateStatus(mon_server);
 	ret = metricLine(mon_server, "status", mon_server['status'])
         + metricLine(mon_server, "uptime", process.uptime())
         + metricLine(mon_server, "avr_net", (mon_server['avr_net_time'] / 1000).toFixed(3))
