@@ -233,11 +233,13 @@ function addToMonitors(server, options) {
 		mon_server['server'] = server;
 		var address = server.address();
 		var host = '0.0.0.0';
-		var port = 'n.a';
+		var port = 'na';
 		if (address){
 			port = address['port'];
 			host = address['address'];
-		} 
+		} else if (options['server_port']) {
+            port = options['server_port'];
+        }
 		mon_server['listen'] = port;
 		monitors.push(mon_server);
 		logger.info("Server " + host + ":" + port + " registered for monitoring, parameters: "
@@ -368,7 +370,7 @@ function getMonitorAllResults(clean) {
 	var res = "";
 	for ( var i = 0; i < monitors.length; i++) {
 		res += monitorResultsToScalexString(monitors[i]);
-		res += "\n";
+		//res += "\n";
 	}
 	if (clean) {
 		cleanAllMonitorResults();
@@ -869,7 +871,7 @@ function init(port) {
         if (checkAccess(access_code)) {
             switch (action) {
             case 'getadata':
-                result = "Not yet implemented.";
+                result = getMonitorAllResults(true);
                 break;
             case 'getdata':
                 result = getMonitorTotalResult(true);
