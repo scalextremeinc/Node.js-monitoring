@@ -27,10 +27,10 @@ var TOP_VIEW = 3; // The maximum number of viewable requests that spent most tim
 var TOP_LIMIT = 100; // The maximum number of collected requests that spent most time for execution
 var TOP_TIMELIMIT = 1; // the monitor have to collect info when exceeding the number of specified seconds only
 var TOP_SORTBY = 'max_time'; // the collected paths sorting key
-var STATUS_OK = 'OK';
-var STATUS_NOK = 'NOK';
-var STATUS_DOWN = 'DOWN';
-var STATUS_IDLE = 'IDLE';
+var STATUS_OK = 1;
+var STATUS_NOK = 0;
+var STATUS_DOWN = 2;
+var STATUS_IDLE = 3;
 // ***********************
 
 var monitor_server = null;
@@ -536,7 +536,7 @@ function monitorResultsToScalexString(mon_server) {
 	var load = mon_server['requests'] / time_window;
     
 	ret = metricLine(mon_server, "status", mon_server['status'])
-        + metricLine(mon_server, "uptime", escape(utils.formatTimestamp(process.uptime())))
+        + metricLine(mon_server, "uptime", process.uptime())
         + metricLine(mon_server, "avr_net", (mon_server['avr_net_time'] / 1000).toFixed(3))
         + metricLine(mon_server, "max_net", (mon_server['max_net_time'] / 1000).toFixed(3))
         + metricLine(mon_server, "avr_resp", (mon_server['avr_resp_time'] / 1000).toFixed(3))
