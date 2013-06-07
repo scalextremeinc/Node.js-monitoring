@@ -851,6 +851,25 @@ function obtainOFD(callback) {
 	});
 }
 
+function csv_to_dict(csv) {
+    var dict = {};
+    var lines = String(csv).split("\n");
+    for (var i = 0; i < lines.length; i++) {
+        var fields = lines[i].split(",");
+        if (fields[0] && fields[1])
+            dict[fields[0]] = fields[1];
+    }
+    return dict;
+}
+
+function dict_to_csv(dict) {
+    var csv = "";
+    for (var key in dict) {
+        csv += key + "," + dict[key] + "\n";
+    }
+    return csv;
+}
+
 function storeMonitorPort(port) {
     var os = require('os');
     var fs = require('fs');
@@ -863,16 +882,17 @@ function storeMonitorPort(port) {
         }
     }
     logger.debug("storeMonitorPort, filename: " + filename);
-    
+    filename = "/tmp/monports";
     var ports_obj = {};
     try {
         var ports_data = fs.readFileSync(filename);
-        ports_obj = JSON.parse(ports_data);
+        ports_obj = csv_to_dict(ports_data);
     } catch(e) {
-        // file doesn't exist
+        // probably file doesn't exist
+        logger.debug("reading file failed: " + e);
     }
     ports_obj[port] = String(process.pid);
-    fs.writeFileSync(filename, JSON.stringify(ports_obj));
+    fs.writeFileSync(filename, dict_to_csv(ports_obj));
 }
 
 /**
