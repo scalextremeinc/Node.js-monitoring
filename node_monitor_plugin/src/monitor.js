@@ -862,8 +862,8 @@ function storeMonitorPort(port) {
             filename = "C:\Program Files\scalextreme\mitos\monitor\nodejs\.monports";
         }
     }
-    logger.info("storeMonitorPort, filename: " + filename);
-    filename = "/tmp/monports";
+    logger.debug("storeMonitorPort, filename: " + filename);
+    
     var ports_obj = {};
     try {
         var ports_data = fs.readFileSync(filename);
