@@ -851,6 +851,30 @@ function obtainOFD(callback) {
 	});
 }
 
+function storeMonitorPort(port) {
+    var os = require('os');
+    var fs = require('fs');
+    var filename = "/opt/scalextreme/mitos/monitor/nodejs/.monports";
+    if (os.platform().indexOf("win") !== -1) {
+        if (os.arch().indexOf("x64") !== -1) {
+            filename = "C:\Program Files(x86)\scalextreme\mitos\monitor\nodejs\.monports";
+        } else {
+            filename = "C:\Program Files\scalextreme\mitos\monitor\nodejs\.monports";
+        }
+    }
+    logger.info("storeMonitorPort, filename: " + filename);
+    filename = "/tmp/monports";
+    var ports_obj = {};
+    try {
+        var ports_data = fs.readFileSync(filename);
+        ports_obj = JSON.parse(ports_data);
+    } catch(e) {
+        // file doesn't exist
+    }
+    ports_obj[port] = String(process.pid);
+    fs.writeFileSync(filename, JSON.stringify(ports_obj));
+}
+
 /**
  * Initialize HTTP Server that is returning the summarized monitored data
  * 
@@ -898,6 +922,7 @@ function init(port) {
         res.write(result);
         res.end();
     }).listen(port, HOST_LISTEN);
+    storeMonitorPort(port);
     logger.info("Scalextreme node.js monitoring initialized, socket: " + HOST_LISTEN + ":" + port);
 }
 exports.init = init;
