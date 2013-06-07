@@ -882,7 +882,7 @@ function storeMonitorPort(port) {
         }
     }
     logger.debug("storeMonitorPort, filename: " + filename);
-    filename = "/tmp/monports";
+    //filename = "/tmp/monports";
     var ports_obj = {};
     try {
         var ports_data = fs.readFileSync(filename);
