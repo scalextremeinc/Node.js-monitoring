@@ -873,12 +873,13 @@ function dict_to_csv(dict) {
 function storeMonitorPort(port) {
     var os = require('os');
     var fs = require('fs');
-    var filename = "/opt/scalextreme/mitos/monitor/nodejs/.monports";
+    
+    var filename = "/opt/scalextreme/mitos/storage/monitor/nodejs/.monports";
     if (os.platform().indexOf("win") !== -1) {
         if (os.arch().indexOf("x64") !== -1) {
-            filename = "C:\Program Files(x86)\scalextreme\mitos\monitor\nodejs\.monports";
+            filename = "C:\Program Files(x86)\scalextreme\mitos\storage\monitor\nodejs\.monports";
         } else {
-            filename = "C:\Program Files\scalextreme\mitos\monitor\nodejs\.monports";
+            filename = "C:\Program Files\scalextreme\mitos\storage\monitor\nodejs\.monports";
         }
     }
     logger.debug("storeMonitorPort, filename: " + filename);
