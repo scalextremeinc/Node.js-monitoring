@@ -202,7 +202,7 @@ function createMon() {
  */
 function addToMonitors(server, options) {
     if (null == monitor_server) {
-        init(PORT_LISTEN);
+        bind(PORT_LISTEN);
     }
 	var collect_all = false;
 	if ('object' == typeof(options)) {// Parse options
@@ -692,7 +692,7 @@ function getUserInfo(request, collect_all) {
  * @param options
  *            {Object} see addToMonitors method comments
  */
-var Monitor = exports.Monitor = function(server, options) {
+var Monitor = exports.addMonitoring = function(server, options) {
 	var mon_server = addToMonitors(server, options);
 	if (mon_server && mon_server != null) {
 //		var host = server.address()['address'] || 'localhost';
@@ -904,7 +904,7 @@ function storeMonitorPort(port) {
  * http://127.0.0.1:10010/node_monitor?action=getdata&access_code={monitis | <access code>}
  * 
  */
-function init(port) {
+function bind(port) {
     monitor_server = http.createServer(function(req, res) {
         // obtainOFD(function(){
         var pathname = url.parse(req.url, true).pathname.replace("/", "").trim().toLowerCase();
@@ -946,4 +946,4 @@ function init(port) {
     storeMonitorPort(port);
     logger.info("Scalextreme node.js monitoring initialized, socket: " + HOST_LISTEN + ":" + port);
 }
-exports.init = init;
+exports.bind = bind;
