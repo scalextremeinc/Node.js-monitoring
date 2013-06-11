@@ -870,18 +870,38 @@ function dict_to_csv(dict) {
     return csv;
 }
 
+
+
+var fs = require('fs');
+var path = require('path');
+
+function mkdirParentSync(dirPath, mode) {  
+    try {
+        fs.mkdirSync(dirPath, mode);
+    } catch (e) {
+        if (e && e.errno === 34) {
+            mkdirParentSync(path.dirname(dirPath), mode);
+            mkdirParentSync(dirPath, mode);
+        }
+    }
+}
+
 function storeMonitorPort(port) {
     var os = require('os');
     var fs = require('fs');
     
-    var filename = "/opt/scalextreme/mitos/storage/monitor/nodejs/.monports";
+    var dir = "/opt/scalextreme/mitos/storage/monitor/nodejs";
     if (os.platform().indexOf("win") !== -1) {
         if (os.arch().indexOf("x64") !== -1) {
-            filename = "C:\Program Files(x86)\scalextreme\mitos\storage\monitor\nodejs\.monports";
+            dir = "C:\Program Files(x86)\scalextreme\mitos\storage\monitor\nodejs";
         } else {
-            filename = "C:\Program Files\scalextreme\mitos\storage\monitor\nodejs\.monports";
+            dir = "C:\Program Files\scalextreme\mitos\storage\monitor\nodejs";
         }
     }
+    
+    mkdirParentSync(dir);
+    var filename = path.join(dir, '.monports')
+
     logger.debug("storeMonitorPort, filename: " + filename);
     //filename = "/tmp/monports";
     var ports_obj = {};
