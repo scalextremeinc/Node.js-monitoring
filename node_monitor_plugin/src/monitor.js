@@ -16,8 +16,8 @@ var events = require('events')
 	,hash = require('node_hash')
 	,utils = require('./util/utils');
 
-exports.Logger = Logger = require('./util/logger');
-var logger = Logger.Logger('node_monitor');
+//exports.Logger = Logger = require('./util/logger');
+//var logger = Logger.Logger('node_monitor');
 
 // ****** Constants ******
 var HOST_LISTEN = "127.0.0.1";
@@ -110,8 +110,8 @@ function createMon() {
 				var hash = utils.hashCode(pathname);
 				if (obj[hash] == undefined) {// adds a new item
 					if (mon.indexPathNames >= TOP_LIMIT) {
-						logger.warn("Collecting requests: Count of collected requests exceeds specified limit (" 
-								+ TOP_LIMIT	+ ")");
+						//logger.warn("Collecting requests: Count of collected requests exceeds specified limit (" 
+						//		+ TOP_LIMIT	+ ")");
 						return;
 					}
 					obj[hash] = {// update existing item
@@ -206,7 +206,7 @@ function addToMonitors(server, options) {
     }
 	var collect_all = false;
 	if ('object' == typeof(options)) {// Parse options
-		logger.debug("Trying to register Monitor: " + JSON.stringify(options));
+		//logger.debug("Trying to register Monitor: " + JSON.stringify(options));
 		collect_all = (options['collect_all'] && options['collect_all'] == 'yes') ? true : false;
 		if (options['top']) {
 			if (typeof(options['top']['view']) == 'number') {
@@ -242,13 +242,13 @@ function addToMonitors(server, options) {
         }
 		mon_server['listen'] = port;
 		monitors.push(mon_server);
-		logger.info("Server " + host + ":" + port + " registered for monitoring, parameters: "
+		console.log("Server " + host + ":" + port + " registered for monitoring, parameters: "
 				+"{'collect_all': " + collect_all
 				+ ", 'top':{'view':" + TOP_VIEW + ",'limit':" + TOP_LIMIT + ", 'timelimit':" + TOP_TIMELIMIT
 				+ ", 'sortby':'" + TOP_SORTBY + "'}}");
 		return mon_server;
 	}
-	logger.warn("Could not add the same server");
+	//logger.warn("Could not add the same server");
 	return null;
 }
 
@@ -262,8 +262,8 @@ function removeFromMonitor(server) {
 		for ( var i = 0; i < monitors.length; i++) {
 			var mon_server = monitors[i];
 			if (mon_server['server'] == server) {
-				logger.info("Server " + server.address()['address'] + ":" + server.address()['port']
-						+ " stopped and removed from monitors chain");
+				//logger.info("Server " + server.address()['address'] + ":" + server.address()['port']
+				//		+ " stopped and removed from monitors chain");
 				monitors.splice(i, 1);// remove monitored element
 			}
 		}
@@ -443,7 +443,7 @@ function getMonitorResults(server) {
 		for ( var i = 0; i < monitors.length; i++) {
 			var mon_server = monitors[i];
 			if (mon_server['server'] == server) {
-				logger.debug("getting monitor parameters...");
+				//logger.debug("getting monitor parameters...");
 				ret = monitorResultsToScalexString(mon_server);
 				break;
 			}
@@ -600,7 +600,7 @@ function cleanMonitorResults(server) {
 	if (server && monitors.length > 0) {
 		for ( var i = 0; i < monitors.length; i++) {
 			if (monitors[i]['server'] == server) {
-				logger.debug("cleaning parameters...");
+				//logger.debug("cleaning parameters...");
 				monitors[i] = monitorResultsClean(monitors[i]);
 				ret = true;
 				break;
@@ -727,7 +727,7 @@ var Monitor = exports.addMonitoring = function(server, options) {
 
 			req.on('end', function() {
 				var net_time = new Date().getTime();
-				logger.info("********req.on end*********** " + (net_time - params['timeS']));
+				//logger.info("********req.on end*********** " + (net_time - params['timeS']));
 				params['net_time'] = net_time;
 			})
 
@@ -739,7 +739,7 @@ var Monitor = exports.addMonitoring = function(server, options) {
 				req.socket.setMaxListeners(0);
 				
 				req.socket.on('error', function(err) {
-					logger.error("******SOCKET.ERROR****** " + err + " - " + (new Date().getTime() - params['timeS']));
+                    console.error("******SOCKET.ERROR****** " + err + " - " + (new Date().getTime() - params['timeS']));
 				})
 				req.socket.on('close', function() {
 					params['timeE'] = new Date().getTime();
@@ -765,13 +765,13 @@ var Monitor = exports.addMonitoring = function(server, options) {
 					params['Uptime'] = process.uptime();
 
 					if (params['Written'] == 0) {
-						logger.error("\"Written\":0 " + JSON.stringify(res['_headers']));
+						console.error("\"Written\":0 " + JSON.stringify(res['_headers']));
 					}
-					logger.info("***SOCKET.CLOSE: " + JSON.stringify(params));
+					//logger.info("***SOCKET.CLOSE: " + JSON.stringify(params));
 					addResultsToMonitor(server, 1, (req.method == "POST" ? 1 : 0), (req.method == "GET" ? 1 : 0),
 							params, res.statusCode, function(error) {
 								if (error)
-									logger.error("SOCKET.CLOSE-addResultsToMonitor: error while add");
+									console.error("SOCKET.CLOSE-addResultsToMonitor: error while add");
 							});
 				})
 			} else {
@@ -800,12 +800,12 @@ var Monitor = exports.addMonitoring = function(server, options) {
 					}
 					params['Uptime'] = process.uptime();// (timeE - time_start) / 1000;// uptime in sec
 
-					logger.info("***RES.FINISH: " + JSON.stringify(params));
+					//logger.info("***RES.FINISH: " + JSON.stringify(params));
 					addResultsToMonitor(server, 1, (req.method == "POST" ? 1 : 0), (req.method == "GET" ? 1 : 0),
 							params['net_duration'], params['pure_duration'], params['total_duration'], params['Read'],
 							params['Written'], res.statusCode, params['info'], params['user'], function(error) {
 								if (error)
-									logger.error("RES.FINISH-addResultsToMonitor: error while add");
+									console.error("RES.FINISH-addResultsToMonitor: error while add");
 							});
 				});
 			}
@@ -829,7 +829,7 @@ function checkAccess(access_code) {
 			 || access_code == hash.md5((time_min - 1).toString()) || access_code == hash.md5((time_min + 1).toString()))) {
 		return true;
 	}
-	logger.error("Wrong access: Correct access code is " + hash.md5(time_min.toString()));
+	console.error("Wrong access: Correct access code is " + hash.md5(time_min.toString()));
 	return false;
 }
 
@@ -902,7 +902,7 @@ function storeMonitorPort(port) {
     mkdirParentSync(dir);
     var filename = path.join(dir, '.monports')
 
-    logger.debug("storeMonitorPort, filename: " + filename);
+    //logger.debug("storeMonitorPort, filename: " + filename);
     //filename = "/tmp/monports";
     var ports_obj = {};
     try {
@@ -910,7 +910,7 @@ function storeMonitorPort(port) {
         ports_obj = csv_to_dict(ports_data);
     } catch(e) {
         // probably file doesn't exist
-        logger.debug("reading file failed: " + e);
+        //logger.debug("reading file failed: " + e);
     }
     ports_obj[port] = String(process.pid);
     fs.writeFileSync(filename, dict_to_csv(ports_obj));
@@ -929,12 +929,12 @@ function bind(port) {
         // obtainOFD(function(){
         var pathname = url.parse(req.url, true).pathname.replace("/", "").trim().toLowerCase();
         var query = url.parse(req.url, true).query;
-        logger.debug("query = " + JSON.stringify(query) + "\tpathname = " + pathname);
+        //logger.debug("query = " + JSON.stringify(query) + "\tpathname = " + pathname);
         if (pathname && pathname == "node_monitor" && query && query['action'] && query['access_code']) {
             var action = query['action'].trim().toLowerCase();
             var access_code = query['access_code'].trim().toLowerCase();
         }
-        logger.debug("access_code = " + access_code + "\taction = " + action);
+        //logger.debug("access_code = " + access_code + "\taction = " + action);
         var result = "???";
         var code = 200;
         if (checkAccess(access_code)) {
@@ -954,7 +954,7 @@ function bind(port) {
             result = "Access denied."
             code = 403;
         }
-        logger.debug("SUM: " + result);
+        //logger.debug("SUM: " + result);
 
         res.writeHead(200, {
             'Content-Type' : 'text/plain',
@@ -964,6 +964,6 @@ function bind(port) {
         res.end();
     }).listen(port, HOST_LISTEN);
     storeMonitorPort(port);
-    logger.info("Scalextreme node.js monitoring initialized, socket: " + HOST_LISTEN + ":" + port);
+    console.log("Scalextreme node.js monitoring initialized, socket: " + HOST_LISTEN + ":" + port);
 }
 exports.bind = bind;

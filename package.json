@@ -11,7 +11,6 @@
     "url": "git@github.com:scalextremeinc/Node.js-monitoring.git"
   },
   "dependencies": {
-    "log4js": "> 0.4.0",
     "node_hash": ">= 0.2.0"
   },
   "keywords": [
@@ -25,7 +24,7 @@
    "bugs": {
        "url": "https://github.com/scalextremeinc/Node.js-monitoring"
    },
-   "engines": [ "node >=0.8" ],
+   "engines": [ "node >=0.6" ],
    "directories": {
        "log": "./node_monitor_plugin/log",
        "properties": "./node_monitor_plugin/properties",
