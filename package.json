@@ -24,7 +24,7 @@
    "bugs": {
        "url": "https://github.com/scalextremeinc/Node.js-monitoring"
    },
-   "engines": [ "node >=0.6" ],
+   "engines": [ "node >=0.6.0" ],
    "directories": {
        "log": "./node_monitor_plugin/log",
        "properties": "./node_monitor_plugin/properties",
