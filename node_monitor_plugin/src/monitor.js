@@ -567,18 +567,6 @@ function monitorResultsToScalexString(mon_server) {
         ret += metricLine(mon_server, "exceptions", mon_server['exceptions']);
 	}
     
-    // append custom metrics data
-    for (var key in custom_metrics) {
-        values = custom_metrics[key];
-        if (values.length > 0) {
-            custom_metrics[key] = [];
-            for (var i = 0; i < values.length; i++) {
-                ret += "nodejs." + key + ":" + values[i][0] + ":"
-                    + values[i][1] + ":" + values[i][2] + "\n";
-            }
-        }
-    }
-    
     ret += metricLine(mon_server, "mon_time", (time_window).toFixed(3));
     ret += metricLine(mon_server, "listen", mon_server['listen']);
 
@@ -962,6 +950,9 @@ function bind(port) {
                 result = "wrong command received";
                 code = 400;
             }
+            
+            // append custom metrics data
+            result += getCustomMetrics();
 
         } else {
             result = "Access denied."
@@ -991,3 +982,23 @@ function addCustomValue(key, value) {
     custom_metrics[key].push([value, sec, ns]);
 }
 exports.addCustomValue = addCustomValue;
+
+/**
+ * Gets custom metrics data,
+ * format:
+ * key:value:sec:ns
+ */
+function getCustomMetrics() {
+    var ret = '';
+    for (var key in custom_metrics) {
+        values = custom_metrics[key];
+        if (values.length > 0) {
+            custom_metrics[key] = [];
+            for (var i = 0; i < values.length; i++) {
+                ret += "nodejs." + key + ":" + values[i][0] + ":"
+                    + values[i][1] + ":" + values[i][2] + "\n";
+            }
+        }
+    }
+    return ret;
+}
