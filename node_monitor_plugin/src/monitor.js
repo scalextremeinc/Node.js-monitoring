@@ -37,6 +37,8 @@ var monitor_server = null;
 
 var monitors = [];
 
+var custom_metrics = {};
+
 function createMon() {
 	// monitored data structure
 	var mon = {
@@ -552,24 +554,7 @@ function monitorResultsToScalexString(mon_server) {
         + metricLine(mon_server, "active", (mon_server['active'] / time_window * 100).toFixed(2))
         + metricLine(mon_server, "load", (load).toFixed(3));
 			
-	
 	if (mon_server['requests'] > 0) {
-        /*
-		if (mon_server['info']['paths'] && TOP_VIEW > 0) {
-			var sorted = utils.sortObject(mon_server['info']['paths'], {
-				'byprop' : TOP_SORTBY, 'descending' : true, 'top' : TOP_VIEW, 'format' : 3,
-				'array_option' : [ 
-					  {'property' : 'load', 'action' : 'divide', 'param1' : 'count', 'param2' : time_window}
-					, {'property' : 'rate', 'action' : 'divide', 'param1' : 'rate', 'param2' : 'count'}
-		            , {'property':'rate', 'action':'divide', 'param1':'rate', 'param2':1000}
-		            , {'property':'max_time', 'action':'divide', 'param1':'max_time', 'param2':1000}]
-			});
-			delete mon_server['info']['paths'];
-			if (sorted.length > 0) {
-				var new_key = "sorted by \'" + TOP_SORTBY + "\' (top " + TOP_VIEW + ")";
-				mon_server['info'][new_key] = sorted;
-			}
-		}*/
         ret += metricLine(mon_server, "requests", mon_server['requests']);
         ret += metricLine(mon_server, "codes_1xx", mon_server['1xx']);
         ret += metricLine(mon_server, "codes_2xx", mon_server['2xx']);
@@ -581,6 +566,19 @@ function monitorResultsToScalexString(mon_server) {
         ret += metricLine(mon_server, "2xx", (100 * mon_server['2xx'] / mon_server['requests']).toFixed(1));
         ret += metricLine(mon_server, "exceptions", mon_server['exceptions']);
 	}
+    
+    // append custom metrics data
+    for (var key in custom_metrics) {
+        values = custom_metrics[key];
+        if (values.length > 0) {
+            custom_metrics[key] = [];
+            for (var i = 0; i < values.length; i++) {
+                ret += "nodejs." + key + ":" + values[i][0] + ":"
+                    + values[i][1] + ":" + values[i][2] + "\n";
+            }
+        }
+    }
+    
     ret += metricLine(mon_server, "mon_time", (time_window).toFixed(3));
     ret += metricLine(mon_server, "listen", mon_server['listen']);
 
@@ -651,8 +649,16 @@ function getRequestInfo(request, collect_all) {
 		if (value && value.length > 0) {
 			tmp.info.add('aname', value);
 		}
-		value = request.headers['x-forwarded-for'] || request.connection.remoteAddress || request.socket.remoteAddress
-				|| request.connection.socket.remoteAddress || 0;
+        value = 0;
+        try {
+            value = request.headers['x-forwarded-for']
+                || request.connection.remoteAddress
+                || request.socket.remoteAddress
+				|| request.connection.socket.remoteAddress
+                || 0;
+        } catch(e) {
+            // just leave value = 0
+        }
 		if (value && value.length > 0) {
 			tmp.info.add('access_from', value);
 		}
@@ -669,8 +675,15 @@ function getUserInfo(request, collect_all) {
 	if (collect_all) {
 		var tmp = {};
 		// logger.info("\nRequest\n"+sys.inspect(request));
-		var value = request.headers['x-forwarded-for'] || request.connection.remoteAddress || request.socket.remoteAddress
-				|| request.connection.socket.remoteAddress;
+        var value = 0;
+        try {
+            var value = request.headers['x-forwarded-for']
+                || request.connection.remoteAddress
+                || request.socket.remoteAddress
+                || request.connection.socket.remoteAddress;
+        } catch(e) {
+            // just leave value = 0
+        }
 		if (value && value.length > 0) {
 			tmp['ip'] = value;
 		}
@@ -967,3 +980,14 @@ function bind(port) {
     console.log("Scalextreme node.js monitoring initialized, socket: " + HOST_LISTEN + ":" + port);
 }
 exports.bind = bind;
+
+function addCustomValue(key, value) {
+    var ts = new Date().getTime();
+    if (!(key in custom_metrics)) {
+        custom_metrics[key] = [];
+    }
+    var sec = Math.floor(ts / 1000);
+    var ns = (ts - (sec * 1000)) * 1000000;
+    custom_metrics[key].push([value, sec, ns]);
+}
+exports.addCustomValue = addCustomValue;
