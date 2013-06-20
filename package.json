@@ -1,6 +1,6 @@
 {
   "name": "scalex-monitor",
-  "version": "0.3.7",
+  "version": "1.0",
   "description": "Node.js server monitor module for scalextreme.com",
   "main": "./node_monitor_plugin/src/monitor",
   "scripts": {
