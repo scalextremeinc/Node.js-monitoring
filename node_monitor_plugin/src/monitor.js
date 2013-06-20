@@ -533,7 +533,7 @@ function monitorResultsToString(mon_server) {
 function metricLine(mon_server, metric, value) {
     var port = mon_server.listen || "";
     //logger.info("metricLine, mon_server: " + mon_server.listen);
-    return "nodejs." + metric + ".[" + port + "]:" + value + "\n";
+    return "nodejs." + metric + "[" + port + "]:" + value + "\n";
 }
 
 function monitorResultsToScalexString(mon_server) {
