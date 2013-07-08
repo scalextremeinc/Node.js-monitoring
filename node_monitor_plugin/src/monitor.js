@@ -554,18 +554,20 @@ function monitorResultsToScalexString(mon_server) {
         + metricLine(mon_server, "active", (mon_server['active'] / time_window * 100).toFixed(2))
         + metricLine(mon_server, "load", (load).toFixed(3));
 			
-	if (mon_server['requests'] > 0) {
+	//if (mon_server['requests'] > 0) {
         ret += metricLine(mon_server, "requests", mon_server['requests']);
         ret += metricLine(mon_server, "codes_1xx", mon_server['1xx']);
         ret += metricLine(mon_server, "codes_2xx", mon_server['2xx']);
         ret += metricLine(mon_server, "codes_3xx", mon_server['3xx']);
         ret += metricLine(mon_server, "codes_4xx", mon_server['4xx']);
         ret += metricLine(mon_server, "codes_408", mon_server['timeout']);
-        ret += metricLine(mon_server, "codes_5xx", mon_server['5xx']);
-        ret += metricLine(mon_server, "post", ((mon_server['post_count'] / mon_server['requests'] * 100)).toFixed(1));
-        ret += metricLine(mon_server, "2xx", (100 * mon_server['2xx'] / mon_server['requests']).toFixed(1));
+        ret += metricLine(mon_server, "codes_5xx", mon_server['5xx']);        
+        var post = mon_server['requests'] > 0 ? ((mon_server['post_count'] / mon_server['requests'] * 100)).toFixed(1) : 0;
+        var ok = mon_server['requests'] > 0 ? (100 * mon_server['2xx'] / mon_server['requests']).toFixed(1) : 0
+        ret += metricLine(mon_server, "post", post);
+        ret += metricLine(mon_server, "2xx", ok);
         ret += metricLine(mon_server, "exceptions", mon_server['exceptions']);
-	}
+	//}
     
     ret += metricLine(mon_server, "mon_time", (time_window).toFixed(3));
     ret += metricLine(mon_server, "listen", mon_server['listen']);
