@@ -893,12 +893,13 @@ function storeMonitorPort(port) {
     var os = require('os');
     var fs = require('fs');
     
-    var dir = "/opt/scalextreme/mitos/storage/monitor/nodejs";
+    var dir = "/opt/citrix/connector/storage/monitor/nodejs";
     if (os.platform().indexOf("win") !== -1) {
+        var childDir = "\\citrix\\connector\\storage\\monitor\\nodejs";
         if (os.arch().indexOf("x64") !== -1) {
-            dir = "C:\Program Files(x86)\scalextreme\mitos\storage\monitor\nodejs";
+            dir = "C:\\Program Files(x86)" + childDir;
         } else {
-            dir = "C:\Program Files\scalextreme\mitos\storage\monitor\nodejs";
+            dir = "C:\\Program Files" + childDir;
         }
     }
     
